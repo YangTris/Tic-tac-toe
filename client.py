@@ -39,13 +39,15 @@ icon = pygame.image.load("tictactoe.png")
 pygame.display.set_icon(icon)
 
 #fonts
-bigfont = pygame.font.Font('freesansbold.ttf', 64)
-smallfont = pygame.font.Font('freesansbold.ttf', 32)
+carofont = pygame.font.Font('freesansbold.ttf', 64)
+messagefont = pygame.font.Font('freesansbold.ttf', 26)
+bigfont = pygame.font.Font('freesansbold.ttf', 52)
+smallfont = pygame.font.Font('freesansbold.ttf', 24)
 backgroundColor = (255, 255, 255)
-titleColor = (0, 0, 0)
 subtitleColor = (128, 0, 255)
-lineColor = (0, 0, 0)
 smallLineColor = (107,107,107)
+titleColor = (0, 0, 0)
+lineColor = (0, 0, 0)
 
 def buildScreen(bottomMsg, string, playerColor = subtitleColor):
     screen.fill(backgroundColor)
@@ -65,15 +67,15 @@ def buildScreen(bottomMsg, string, playerColor = subtitleColor):
 
     pygame.draw.line(screen, lineColor, (720, 0), (720, 720), 4)
 
-
-    # title = bigfont.render("TIC TAC TOE", True, titleColor)
-    # screen.blit(title, (110, 0))
-    # subtitle = smallfont.render(str.upper(string), True, playerColor)
-    # screen.blit(subtitle, (150, 70))
-    # centerMessage(bottomMsg, playerColor)
+    #Messages screen
+    title = bigfont.render("TIC TAC TOE", True, titleColor)
+    screen.blit(title, (width - (width-height) + 20, 10))
+    subtitle = smallfont.render(str.upper(string), True, playerColor)
+    screen.blit(subtitle, (width - (width-height) + 70, 70))
+    centerMessage(bottomMsg, playerColor)
 
 def centerMessage(msg, color = titleColor):
-    pos = (100, 480)
+    pos = (width - (width-height) + 40, 110)
     # screen.fill(backgroundColor)
     if "One" in msg or "1" in msg:
         color = playerOneColor
@@ -83,7 +85,7 @@ def centerMessage(msg, color = titleColor):
     screen.blit(msgRendered, pos)
 
 def printCurrent(current, pos, color):
-    currentRendered = bigfont.render(str.upper(current), True, color)
+    currentRendered = carofont.render(str.upper(current), True, color)
     screen.blit(currentRendered, pos)
 
 def printMatrix(matrix):
