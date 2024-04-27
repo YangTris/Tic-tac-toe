@@ -5,7 +5,7 @@ import time
 s = socket.socket()
 host = "127.0.0.1"
 port = 9999
-matrix = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+matrix = [[0 for _ in range(9)] for _ in range(9)]
 # print(matrix)
 
 playerOne = 1
@@ -54,7 +54,7 @@ def get_input(currentPlayer):
 def check_rows():
     # print("Checking rows")
     result = 0
-    for i in range(3):
+    for i in range(9):
         if matrix[i][0] == matrix[i][1] and matrix[i][1] == matrix[i][2]:
             result = matrix[i][0]
             if result != 0:
@@ -64,7 +64,7 @@ def check_rows():
 def check_columns():
     # print("Checking cols")
     result = 0
-    for i in range(3):
+    for i in range(9):
         if matrix[0][i] == matrix[1][i] and matrix[1][i] == matrix[2][i]:
             result = matrix[0][i]
             if result != 0:
@@ -96,7 +96,7 @@ def start_server():
     try:
         s.bind((host, port))
         print("Tic Tac Toe server started \nBinding to port", port)
-        s.listen(2) 
+        s.listen() 
         accept_players()
     except socket.error as e:
         print("Server binding error:", e)
@@ -128,7 +128,7 @@ def accept_players():
 def start_game():
     result = 0
     i = 0
-    while result == 0 and i < 9 :
+    while result == 0 and i < 81 :
         if (i%2 == 0):
             get_input(playerOne)
         else:

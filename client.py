@@ -16,7 +16,7 @@ msg = "Waiting for peer"
 currentPlayer = 0
 xy = (-1, -1)
 allow = 0 #allow handling mouse events
-matrix = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+matrix = [[0 for _ in range(9)] for _ in range(9)]
 
 #Create worker threads
 def create_thread(target):
@@ -27,7 +27,7 @@ def create_thread(target):
 #initialize
 pygame.init()
 
-width = 1280
+width = 1080
 height = 720
 screen = pygame.display.set_mode((width, height))
 
@@ -45,6 +45,7 @@ backgroundColor = (255, 255, 255)
 titleColor = (0, 0, 0)
 subtitleColor = (128, 0, 255)
 lineColor = (0, 0, 0)
+smallLineColor = (107,107,107)
 
 def buildScreen(bottomMsg, string, playerColor = subtitleColor):
     screen.fill(backgroundColor)
@@ -53,20 +54,23 @@ def buildScreen(bottomMsg, string, playerColor = subtitleColor):
     elif "Two" in string or "2" in string:
         playerColor = playerTwoColor
 
-    #vertical lines
-    pygame.draw.line(screen, lineColor, (250-2, 150), (250-2, 450), 4)
-    pygame.draw.line(screen, lineColor, (350-2, 150), (350-2, 450), 4)
-    pygame.draw.line(screen, lineColor, (960, 0), (960, 720), 4)
+    #draw
+    for i in range(9):
+        if i != 0:
+            pygame.draw.line(screen,smallLineColor,(i*80,0),(i*80,720),2)
+            pygame.draw.line(screen,smallLineColor,(0,i*80),(720,i*80),2)
+            if i%3 == 0:
+                pygame.draw.line(screen,lineColor,(i*80,0),(i*80,720),4)
+                pygame.draw.line(screen,lineColor,(0,i*80),(720,i*80),4)
 
-    #horizontal lines
-    pygame.draw.line(screen, lineColor, (150, 250-2), (450, 250-2), 4)
-    pygame.draw.line(screen, lineColor, (150, 350-2), (450, 350-2), 4)
+    pygame.draw.line(screen, lineColor, (720, 0), (720, 720), 4)
 
-    title = bigfont.render("TIC TAC TOE", True, titleColor)
-    screen.blit(title, (110, 0))
-    subtitle = smallfont.render(str.upper(string), True, playerColor)
-    screen.blit(subtitle, (150, 70))
-    centerMessage(bottomMsg, playerColor)
+
+    # title = bigfont.render("TIC TAC TOE", True, titleColor)
+    # screen.blit(title, (110, 0))
+    # subtitle = smallfont.render(str.upper(string), True, playerColor)
+    # screen.blit(subtitle, (150, 70))
+    # centerMessage(bottomMsg, playerColor)
 
 def centerMessage(msg, color = titleColor):
     pos = (100, 480)
@@ -83,12 +87,10 @@ def printCurrent(current, pos, color):
     screen.blit(currentRendered, pos)
 
 def printMatrix(matrix):
-    for i in range(3):
-        #When row increases, y changes
-        y = int((i + 1.75) * 100) 
-        for j in range(3):
-            #When col increases, x changes
-            x =  int((j + 1.75) * 100)
+    for i in range(9):
+        y = int(i*80+10)
+        for j in range(9):
+            x = int(j*80+18)
             current = " "
             color = titleColor
             if matrix[i][j] == playerOne:
@@ -100,7 +102,7 @@ def printMatrix(matrix):
             printCurrent(current, (x, y), color)
 
 def validate_input(x, y):
-    if x > 3 or y > 3:
+    if x > 8 or y > 8:
         print("\nOut of bound! Enter again...\n")
         return False
     elif matrix[x][y] != 0:
@@ -113,13 +115,13 @@ def handleMouseEvent(pos):
     y = pos[1]
     global currentPlayer
     global xy
-    if(x < 150 or x > 450 or y < 150 or y > 450):
+    if(x < 0 or x > 720 or y < 0 or y > 720):
         xy = (-1, -1)
     else:
         # When x increases, column changes
-        col = int(x/100 - 1.5)
+        col = int(x/80)
         # When y increases, row changes
-        row = int(y/100 - 1.5)
+        row = int(y/80)
         print("({}, {})".format(row,col))
         if validate_input(row, col):
             matrix[row][col] = currentPlayer
@@ -159,8 +161,7 @@ def start_game():
     
         if msg == "":
             break
-        
-        buildScreen(bottomMsg, msg)                      
+        buildScreen(bottomMsg, msg)
         printMatrix(matrix) 
         pygame.display.update()
 
