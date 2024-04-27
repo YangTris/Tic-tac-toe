@@ -27,8 +27,8 @@ def create_thread(target):
 #initialize
 pygame.init()
 
-width = 600
-height = 550
+width = 1280
+height = 720
 screen = pygame.display.set_mode((width, height))
 
 #set title
@@ -56,6 +56,8 @@ def buildScreen(bottomMsg, string, playerColor = subtitleColor):
     #vertical lines
     pygame.draw.line(screen, lineColor, (250-2, 150), (250-2, 450), 4)
     pygame.draw.line(screen, lineColor, (350-2, 150), (350-2, 450), 4)
+    pygame.draw.line(screen, lineColor, (960, 0), (960, 720), 4)
+
     #horizontal lines
     pygame.draw.line(screen, lineColor, (150, 250-2), (450, 250-2), 4)
     pygame.draw.line(screen, lineColor, (150, 350-2), (450, 350-2), 4)
