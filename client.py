@@ -17,7 +17,9 @@ currentPlayer = 0
 xy = (-1, -1)
 allow = 0 #allow handling mouse events
 matrix = [[0 for _ in range(9)] for _ in range(9)]
+game_state = "waiting"
 
+currentPlayer =0
 #Create worker threads
 def create_thread(target):
     t = threading.Thread(target = target) #argument - target function
@@ -74,6 +76,10 @@ def buildScreen(bottomMsg, string, playerColor = subtitleColor):
     screen.blit(subtitle, (width - (width-height) + 70, 70))
     centerMessage(bottomMsg, playerColor)
 
+    pygame.draw.rect(screen, (0, 255, 0), (width - (width-height) + 100, 150, 180, 50))  # Green button
+    button_text = smallfont.render("Restart Game", True, (0, 0, 0))
+    screen.blit(button_text, (width - (width-height) + 110, 165))
+
 def centerMessage(msg, color = titleColor):
     pos = (width - (width-height) + 40, 110)
     # screen.fill(backgroundColor)
@@ -115,7 +121,6 @@ def validate_input(x, y):
 def handleMouseEvent(pos):
     x = pos[0]
     y = pos[1]
-    global currentPlayer
     global xy
     if(x < 0 or x > 720 or y < 0 or y > 720):
         xy = (-1, -1)
@@ -128,6 +133,20 @@ def handleMouseEvent(pos):
         if validate_input(row, col):
             matrix[row][col] = currentPlayer
             xy = (row,col)
+
+
+def pos_on_restart_button(pos):
+    # Modify this function according to your UI design
+    # For example, check if the mouse click is within the restart button's boundaries
+    restart_button_x = width - (width-height) + 100  # Example: x-coordinate of the restart button
+    restart_button_y = 150  # Example: y-coordinate of the restart button
+    restart_button_width = 180  # Example: width of the restart button
+    restart_button_height = 50  # Example: height of the restart button
+    return restart_button_x <= pos[0] <= restart_button_x + restart_button_width and \
+           restart_button_y <= pos[1] <= restart_button_y + restart_button_height
+
+def agree_to_restart_game():
+    s.send("RestartAgree".encode())
 
 def start_player():
     global currentPlayer
@@ -160,6 +179,8 @@ def start_game():
                 pos = pygame.mouse.get_pos()
                 if allow:
                     handleMouseEvent(pos)
+                if pos_on_restart_button(pos):
+                    agree_to_restart_game()
     
         if msg == "":
             break
@@ -192,6 +213,11 @@ def accept_msg():
                             allow = 0
                     except:
                         print("Error occured....Try again")
+            
+            if recvDataDecode == "Restart":
+                # Prompt the user for agreement to restart the game
+                game_state = "waiting_for_restart_agreement"
+                bottomMsg = "Do you agree to restart the game? Click the restart button."
 
             elif recvDataDecode == "Error":
                 print("Error occured! Try again..")
@@ -206,8 +232,15 @@ def accept_msg():
                 msgRecv = s.recv(2048 * 100)
                 msgRecvDecoded = msgRecv.decode("utf-8")
                 bottomMsg = msgRecvDecoded
-                msg = "~~~Game Over~~~"
+                msg = "~~~Game Over~~~" 
                 break
+
+            elif recvDataDecode == "RestartAgree":
+                # Reset the game state when the server confirms the restart
+                game_state = "waiting"
+                bottomMsg = "Waiting for peer"
+                matrix = [[0 for _ in range(9)] for _ in range(9)]
+
             else:
                 msg = recvDataDecode
 

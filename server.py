@@ -13,6 +13,7 @@ playerTwo = 2
 
 playerConn = list()
 playerAddr = list()       
+restart_requests = [False, False]
 
 #server side validation is disabled to reduce latency
 '''
@@ -125,6 +126,8 @@ def accept_players():
     except Exception as e:
         print("Error occurred:", e)
 
+
+
 def start_game():
     result = 0
     i = 0
@@ -136,7 +139,7 @@ def start_game():
         result = check_winner()
         i = i + 1
         # print("Current count", i ,result == 0 and i < 9, "Result = ", result)
-    
+
     send_common_msg("Over")
 
     if result == 1:
@@ -147,10 +150,58 @@ def start_game():
         lastmsg = "Draw game!! Try again later!"
 
     send_common_msg(lastmsg)
+    
+    wait_for_restart_requests()
+
     time.sleep(10)
     for conn in playerConn:
         conn.close()
     
+def restart_game():
+    global matrix, restart_requests
+    matrix = [[0 for _ in range(9)] for _ in range(9)]
+    # Reset restart requests
+    restart_requests = [False, False]
+    for conn in playerConn:
+        conn.send("Restart".encode())
+
+def wait_for_restart_requests():
+    global restart_requests
+    while not all(restart_requests):
+        time.sleep(1)
+    restart_game()
+
+def handle_restart_request(player_number):
+    restart_requests[player_number - 1] = True
+    # Check if both clients requested a restart
+    if all(restart_requests):
+        restart_game()
+
+def accept_msg():
+    global matrix
+    global msg
+    global bottomMsg 
+    global allow
+    global xy
+    while True:
+        try: 
+            recvData = s.recv(2048 * 10)
+            recvDataDecode = recvData.decode()
+
+            if recvDataDecode == "RestartAgree":
+                handle_restart_request()  
+
+            # Existing code...
+            
+        except KeyboardInterrupt:
+            print("\nKeyboard Interrupt")
+            time.sleep(1)
+            break
+
+        except:
+            print("Error occured")
+            break
+
 
 def send_common_msg(text):
     playerConn[0].send(text.encode())
