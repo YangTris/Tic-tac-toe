@@ -96,9 +96,9 @@ def printCurrent(current, pos, color):
 
 def printMatrix(matrix):
     for i in range(9):
-        y = int(i*80+10)
+        x = int(i*80+18)
         for j in range(9):
-            x = int(j*80+18)
+            y = int(j*80+10)
             current = " "
             color = titleColor
             if matrix[i][j] == playerOne:
@@ -126,9 +126,9 @@ def handleMouseEvent(pos):
         xy = (-1, -1)
     else:
         # When x increases, column changes
-        col = int(x/80)
+        row = int(x/80)
         # When y increases, row changes
-        row = int(y/80)
+        col = int(y/80)
         print("({}, {})".format(row,col))
         if validate_input(row, col):
             matrix[row][col] = currentPlayer
