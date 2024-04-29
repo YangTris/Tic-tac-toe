@@ -174,17 +174,17 @@ while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
-        if gameOver == False:
-            if event.type == pygame.MOUSEBUTTONDOWN and clicked == False:
-                clicked = True
-            if event.type == pygame.MOUSEBUTTONUP and clicked == True:
-                clicked = False
-                pos = pygame.mouse.get_pos()
-                mouse_x = pos[0]
-                mouse_y = pos[1]
-                print(pos)
-                #check inside game board
-                if pos >= (0,0) and pos <= (720,720):
+        if event.type == pygame.MOUSEBUTTONDOWN and clicked == False:
+            clicked = True
+        if event.type == pygame.MOUSEBUTTONUP and clicked == True:
+            clicked = False
+            pos = pygame.mouse.get_pos()
+            mouse_x = pos[0]
+            mouse_y = pos[1]
+            print(pos)
+            #check inside game board
+            if pos >= (0,0) and pos <= (720,720):
+                if gameOver == False:
                     if matrix[mouse_x//80][mouse_y//80] == 0:
                         matrix[mouse_x//80][mouse_y//80] = player
                         print(matrix[mouse_x//80][mouse_y//80])
@@ -194,8 +194,8 @@ while run:
                         if winner != 0:
                             gameOver = True
                             print(winner)
-                if mouse_x > SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 100 and mouse_x < SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 280 and mouse_y > 150 and mouse_y < 200:
-                    restart_game()
+            if mouse_x > SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 100 and mouse_x < SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 280 and mouse_y > 150 and mouse_y < 200:
+                restart_game()
     pygame.display.update()
 
 pygame.quit()
