@@ -22,6 +22,10 @@ def drawGrid():
                 pygame.draw.line(screen,lineColor,(0,i*80),(720,i*80),4)
     pygame.draw.line(screen, lineColor, (720, 0), (720, 720), 4)
     
+    pygame.draw.rect(screen, (0, 255, 0), (SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 100, 150, 180, 50))  # Green button
+    button_text = pygame.font.Font('freesansbold.ttf', 24).render("Restart Game", True, (0, 0, 0))
+    screen.blit(button_text, (SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 110, 165))
+
 def drawMarker():
     x_pos = 0
     for i in matrix:
@@ -128,6 +132,12 @@ def check_winner():
         result = check_diagonals()
     return result
 
+def restart_game():
+    global matrix, winnerMatrix, player, gameOver
+    matrix = [[0 for _ in range(9)] for _ in range(9)]
+    winnerMatrix = [[0 for _ in range(3)] for _ in range(3)]
+    player = 1
+    gameOver = False
 
 run = True
 while run:
@@ -157,6 +167,10 @@ while run:
                         check_winner()
                         #if check_winner() != 0:
                             #gameOver = True
+        if event.type== pygame.MOUSEBUTTONUP:
+            pos = pygame.mouse.get_pos()
+            if pos[0] > SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 100 and pos[0] < SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 280 and pos[1] > 150 and pos[1] < 200:
+                restart_game()
 
     pygame.display.update()
 
