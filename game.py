@@ -151,14 +151,17 @@ def check_winner():
             winner = -1
         #check rows
         if winnerMatrix[0][pos] == winnerMatrix[1][pos] == winnerMatrix[2][pos]:
-            winner = winnerMatrix[0][pos]
+            if winnerMatrix[0][pos]!=0:
+                winner = winnerMatrix[0][pos]
         pos+=1
     
     #check diagonals
     if winnerMatrix[0][0] == winnerMatrix[1][1] == winnerMatrix[2][2]:
-        winner = winnerMatrix[0][0]
+        if winnerMatrix[0][0] != 0:
+            winner = winnerMatrix[0][0]
     if winnerMatrix[2][0] == winnerMatrix[1][1] == winnerMatrix[0][2]:
-        winner = winnerMatrix[2][0]
+        if winnerMatrix[2][0] != 0:
+            winner = winnerMatrix[2][0]
         
     return winner
         
@@ -193,7 +196,7 @@ while run:
                         winner = check_winner()
                         if winner != 0:
                             gameOver = True
-                            print(winner)
+                            print("player ",winner," win")
             if mouse_x > SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 100 and mouse_x < SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 280 and mouse_y > 150 and mouse_y < 200:
                 restart_game()
     pygame.display.update()
