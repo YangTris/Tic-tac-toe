@@ -52,15 +52,15 @@ def check_columns():
     for i in range(9):
         if matrix[i][0] == matrix[i][1] == matrix[i][2]:
             result = matrix[i][0]
-            if result != 0:
+            if result != 0 and result != 2:
                 draw_winner(result,i,0)
         if matrix[i][3] == matrix[i][4] == matrix[i][5]:
             result = matrix[i][3]
-            if result != 0:
+            if result != 0 and result != 2:
                 draw_winner(result,i,3)
         if matrix[i][6] == matrix[i][7] == matrix[i][8]:
             result = matrix[i][6]
-            if result != 0:
+            if result != 0 and result != 2:
                 draw_winner(result,i,6)
 
     return result
@@ -71,15 +71,15 @@ def check_rows():
     for i in range(9):
         if matrix[0][i] == matrix[1][i] == matrix[2][i]:
             result = matrix[0][i]
-            if result != 0:
+            if result != 0 and result != 2:
                 draw_winner(result,0,i)
         if matrix[3][i] == matrix[4][i] == matrix[5][i]:
             result = matrix[3][i]
-            if result != 0:
+            if result != 0 and result != 2:
                 draw_winner(result,3,i)
         if matrix[6][i] == matrix[7][i] == matrix[8][i]:
             result = matrix[6][i]
-            if result != 0:
+            if result != 0 and result != 2:
                 draw_winner(result,6,i)
     return result
 
@@ -96,15 +96,15 @@ def check_diagonals():
 
         if matrix[x][0] == matrix[y][1] == matrix[z][2]:
             result = matrix[x][0]
-            if result != 0:
+            if result != 0 and result != 2:
                 draw_winner(result,x,0)
         if matrix[x][3] == matrix[y][4] == matrix[z][5]:
             result = matrix[x][3]
-            if result != 0:
+            if result != 0 and result != 2:
                 draw_winner(result,x,3)
         if matrix[x][6] == matrix[y][7] == matrix[z][8]:
             result = matrix[x][6]
-            if result != 0:
+            if result != 0 and result != 2:
                 draw_winner(result,x,6)
 
     return result
@@ -115,7 +115,7 @@ def draw_winner(player,x_pos,y_pos):
     for i in range(3):
         for j in range(3):
             if matrix[x*3+i][y*3+j] == 0:
-                matrix[x*3+i][y*3+j] = player
+                matrix[x*3+i][y*3+j] = 2
     winnerMatrix[x][y] = player
     print(winnerMatrix)
 
@@ -127,6 +127,7 @@ def check_winner():
     if result == 0:
         result = check_diagonals()
     return result
+
 
 run = True
 while run:
