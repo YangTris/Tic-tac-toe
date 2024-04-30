@@ -13,6 +13,7 @@ gameOver = False
 winner = 0
 openMove = True
 lastMove = None
+nextMove = [-1,-1]
 screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
 
 def drawGrid():
@@ -31,6 +32,7 @@ def drawGrid():
     screen.blit(button_text, (SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 110, 165))
 
 def drawMarker():
+    global nextMove,openMove
     x_pos = 0
     for i in matrix:
         y_pos = 0
@@ -40,8 +42,6 @@ def drawMarker():
                 pygame.draw.line(screen,XCOLOR,(x_pos*80+15,y_pos*80+65),(x_pos*80+65,y_pos*80+15),5)
             if j == -1:
                 pygame.draw.circle(screen,OCOLOR,(x_pos*80+40,y_pos*80+40),30,5)
-            if j == -2:
-                pygame.draw.circle(screen,XCOLOR,(x_pos*80+40,y_pos*80+40),30,5)
             y_pos+=1
         x_pos+=1
     x = 0
@@ -55,6 +55,22 @@ def drawMarker():
                 pygame.draw.circle(screen,OCOLOR,(x*240+120,y*240+120),100,15)
             y+=1
         x+=1
+    if openMove == False:
+        x= nextMove[0]
+        y= nextMove[1]
+        pygame.draw.line(screen,OCOLOR,(x*80,y*80),((x+3)*80,y*80),5)
+        pygame.draw.line(screen,OCOLOR,(x*80,(y+3)*80),((x+3)*80,(y+3)*80),5)
+        pygame.draw.line(screen,OCOLOR,(x*80,y*80),(x*80,(y+3)*80),5)
+        pygame.draw.line(screen,OCOLOR,((x+3)*80,y*80),((x+3)*80,(y+3)*80),5)
+    else:
+        pygame.draw.line(screen,OCOLOR,(0,0),(720,0),5)
+        pygame.draw.line(screen,OCOLOR,(0,0),(0,720),5)
+        pygame.draw.line(screen,OCOLOR,(720,0),(720,720),5)
+        pygame.draw.line(screen,OCOLOR,(0,720),(720,720),5)
+
+    
+
+    
 
 def check_columns():
     # print("Checking columns")
@@ -172,9 +188,8 @@ def check_winner():
         
     return winner
 
-
 def check_next_move():
-    global lastMove,openMove,player,gameOver,winner
+    global lastMove,nextMove,openMove,player,gameOver,winner
     check_cell_winner()
     winner = check_winner()
     if winner != 0:
@@ -184,27 +199,24 @@ def check_next_move():
         if lastMove != None:
             x = lastMove[0]//80
             y = lastMove[1]//80
-            posX = x-x//3*3
-            posY = y-y//3*3
-            if winnerMatrix[posX][posY] == 0:
+            nextMove[0] = (x-x//3*3)*3
+            nextMove[1] = (y-y//3*3)*3
+            if winnerMatrix[nextMove[0]//3][nextMove[1]//3] == 0:
                 openMove = False
                 for i in range(3):
                     for j in range(3):
-                        if matrix[posX*3+i][posY*3+j] == 0:
-                            matrix[posX*3+i][posY*3+j] = -2
+                        if matrix[nextMove[0]+i][nextMove[1]+j] == 0:
+                            matrix[nextMove[0]+i][nextMove[1]+j] = -2
             else:
+                nextMove = [-1,-1]
                 openMove = True
 
 def reset_move():
-    if lastMove != None:
-        x = lastMove[0]//80
-        y = lastMove[1]//80
-        posX = (x-x//3*3)*3
-        posY = (y-y//3*3)*3
+    if nextMove != [-1,-1]:
         for i in range(3):
             for j in range(3):
-                if matrix[posX+i][posY+j] == -2:
-                    matrix[posX+i][posY+j] = 0
+                if matrix[nextMove[0]+i][nextMove[1]+j] == -2:
+                    matrix[nextMove[0]+i][nextMove[1]+j] = 0
 
 run = True
 while run:
