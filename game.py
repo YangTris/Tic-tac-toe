@@ -11,6 +11,7 @@ pos = []
 player = 1
 gameOver = False
 winner = 0
+screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
 
 def drawGrid():
     screen.fill(backgroundColor)
