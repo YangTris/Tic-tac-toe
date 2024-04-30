@@ -11,6 +11,8 @@ pos = []
 player = 1
 gameOver = False
 winner = 0
+openMove = True
+lastMove = None
 screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
 
 def drawGrid():
@@ -38,6 +40,8 @@ def drawMarker():
                 pygame.draw.line(screen,XCOLOR,(x_pos*80+15,y_pos*80+65),(x_pos*80+65,y_pos*80+15),5)
             if j == -1:
                 pygame.draw.circle(screen,OCOLOR,(x_pos*80+40,y_pos*80+40),30,5)
+            if j == -2:
+                pygame.draw.circle(screen,XCOLOR,(x_pos*80+40,y_pos*80+40),30,5)
             y_pos+=1
         x_pos+=1
     x = 0
@@ -59,15 +63,15 @@ def check_columns():
         if matrix[i][0] == matrix[i][1] == matrix[i][2]:
             result = matrix[i][0]
             if result != 0 and result != 2:
-                draw_winner(result,i,0)
+                add_cell_winner(result,i,0)
         if matrix[i][3] == matrix[i][4] == matrix[i][5]:
             result = matrix[i][3]
             if result != 0 and result != 2:
-                draw_winner(result,i,3)
+                add_cell_winner(result,i,3)
         if matrix[i][6] == matrix[i][7] == matrix[i][8]:
             result = matrix[i][6]
             if result != 0 and result != 2:
-                draw_winner(result,i,6)
+                add_cell_winner(result,i,6)
 
     return result
 
@@ -78,15 +82,15 @@ def check_rows():
         if matrix[0][i] == matrix[1][i] == matrix[2][i]:
             result = matrix[0][i]
             if result != 0 and result != 2:
-                draw_winner(result,0,i)
+                add_cell_winner(result,0,i)
         if matrix[3][i] == matrix[4][i] == matrix[5][i]:
             result = matrix[3][i]
             if result != 0 and result != 2:
-                draw_winner(result,3,i)
+                add_cell_winner(result,3,i)
         if matrix[6][i] == matrix[7][i] == matrix[8][i]:
             result = matrix[6][i]
             if result != 0 and result != 2:
-                draw_winner(result,6,i)
+                add_cell_winner(result,6,i)
     return result
 
 def check_diagonals():
@@ -103,19 +107,19 @@ def check_diagonals():
         if matrix[x][0] == matrix[y][1] == matrix[z][2]:
             result = matrix[x][0]
             if result != 0 and result != 2:
-                draw_winner(result,x,0)
+                add_cell_winner(result,x,0)
         if matrix[x][3] == matrix[y][4] == matrix[z][5]:
             result = matrix[x][3]
             if result != 0 and result != 2:
-                draw_winner(result,x,3)
+                add_cell_winner(result,x,3)
         if matrix[x][6] == matrix[y][7] == matrix[z][8]:
             result = matrix[x][6]
             if result != 0 and result != 2:
-                draw_winner(result,x,6)
+                add_cell_winner(result,x,6)
 
     return result
 
-def draw_winner(player,x_pos,y_pos):
+def add_cell_winner(player,x_pos,y_pos):
     x = (x_pos//3)
     y = (y_pos//3)
     for i in range(3):
@@ -135,11 +139,13 @@ def check_cell_winner():
     return result
 
 def restart_game():
-    global matrix, winnerMatrix, player, gameOver
+    global matrix, winnerMatrix, player, gameOver,lastMove, openMove
     matrix = [[0 for _ in range(9)] for _ in range(9)]
     winnerMatrix = [[0 for _ in range(3)] for _ in range(3)]
     player = 1
     gameOver = False
+    lastMove = None
+    openMove = True
 
 def check_winner():
     winner = 0
@@ -165,15 +171,46 @@ def check_winner():
             winner = winnerMatrix[2][0]
         
     return winner
-        
 
+
+def check_next_move():
+    global lastMove,openMove,player,gameOver,winner
+    check_cell_winner()
+    winner = check_winner()
+    if winner != 0:
+        gameOver = True
+        print("player ",winner," win")
+    else:
+        if lastMove != None:
+            x = lastMove[0]//80
+            y = lastMove[1]//80
+            posX = x-x//3*3
+            posY = y-y//3*3
+            if winnerMatrix[posX][posY] == 0:
+                openMove = False
+                for i in range(3):
+                    for j in range(3):
+                        if matrix[posX*3+i][posY*3+j] == 0:
+                            matrix[posX*3+i][posY*3+j] = -2
+            else:
+                openMove = True
+
+def reset_move():
+    if lastMove != None:
+        x = lastMove[0]//80
+        y = lastMove[1]//80
+        posX = (x-x//3*3)*3
+        posY = (y-y//3*3)*3
+        for i in range(3):
+            for j in range(3):
+                if matrix[posX+i][posY+j] == -2:
+                    matrix[posX+i][posY+j] = 0
 
 run = True
 while run:
-    
     drawGrid()
     drawMarker()
-
+    
     #add event handler
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -189,15 +226,19 @@ while run:
             #check inside game board
             if pos >= (0,0) and pos <= (720,720):
                 if gameOver == False:
-                    if matrix[mouse_x//80][mouse_y//80] == 0:
-                        matrix[mouse_x//80][mouse_y//80] = player
-                        print(matrix[mouse_x//80][mouse_y//80])
-                        player *= -1
-                        check_cell_winner()
-                        winner = check_winner()
-                        if winner != 0:
-                            gameOver = True
-                            print("player ",winner," win")
+                    if openMove == True:
+                        if matrix[mouse_x//80][mouse_y//80] == 0:
+                            matrix[mouse_x//80][mouse_y//80] = player
+                            player *= -1
+                            lastMove = pos
+                            check_next_move()
+                    elif openMove == False:
+                        if matrix[mouse_x//80][mouse_y//80] == -2:
+                            matrix[mouse_x//80][mouse_y//80]  = player
+                            player *= -1
+                            reset_move()
+                            lastMove = pos
+                            check_next_move()
             if mouse_x > SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 100 and mouse_x < SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 280 and mouse_y > 150 and mouse_y < 200:
                 restart_game()
     pygame.display.update()
