@@ -63,15 +63,10 @@ def drawMarker():
         pygame.draw.line(screen,OCOLOR,(x*80,y*80),(x*80,(y+3)*80),5)
         pygame.draw.line(screen,OCOLOR,((x+3)*80,y*80),((x+3)*80,(y+3)*80),5)
     else:
-        pygame.draw.line(screen,OCOLOR,(0,0),(720,0),5)
-        pygame.draw.line(screen,OCOLOR,(0,0),(0,720),5)
-        pygame.draw.line(screen,OCOLOR,(720,0),(720,720),5)
-        pygame.draw.line(screen,OCOLOR,(0,720),(720,720),5)
-
+        for i in range(4):
+            pygame.draw.line(screen,OCOLOR,(i*3*80,0),(i*3*80,720),5)
+            pygame.draw.line(screen,OCOLOR,(0,i*3*80),(720,i*3*80),5)
     
-
-    
-
 def check_columns():
     # print("Checking columns")
     result = 0
@@ -88,7 +83,6 @@ def check_columns():
             result = matrix[i][6]
             if result != 0 and result != 2:
                 add_cell_winner(result,i,6)
-
     return result
 
 def check_rows():
@@ -134,7 +128,7 @@ def check_diagonals():
                 add_cell_winner(result,x,6)
 
     return result
-
+          
 def add_cell_winner(player,x_pos,y_pos):
     x = (x_pos//3)
     y = (y_pos//3)
@@ -152,6 +146,8 @@ def check_cell_winner():
         result = check_rows()
     if result == 0:
         result = check_diagonals()
+    if result == 0:
+        result = check_tie()
     return result
 
 def restart_game():
@@ -177,7 +173,6 @@ def check_winner():
             if winnerMatrix[0][pos]!=0:
                 winner = winnerMatrix[0][pos]
         pos+=1
-    
     #check diagonals
     if winnerMatrix[0][0] == winnerMatrix[1][1] == winnerMatrix[2][2]:
         if winnerMatrix[0][0] != 0:
@@ -185,7 +180,13 @@ def check_winner():
     if winnerMatrix[2][0] == winnerMatrix[1][1] == winnerMatrix[0][2]:
         if winnerMatrix[2][0] != 0:
             winner = winnerMatrix[2][0]
-        
+    #check tie
+    count = 0
+    for i in winnerMatrix:
+        for j in i:
+            if j == 0: count+=1
+    if count == 0: 
+        winner = -2
     return winner
 
 def check_next_move():
@@ -194,7 +195,10 @@ def check_next_move():
     winner = check_winner()
     if winner != 0:
         gameOver = True
-        print("player ",winner," win")
+        if winner == -2:
+            print("Tie")
+        else:
+            print("player ",winner," win")
     else:
         if lastMove != None:
             x = lastMove[0]//80
