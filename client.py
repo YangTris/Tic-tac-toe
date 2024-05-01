@@ -3,6 +3,9 @@ from settings import *
 import socket
 import threading
 
+host='127.0.0.1'
+port=12345
+
 matrix = [[0 for _ in range(9)] for _ in range(9)]
 winnerMatrix = [[0 for _ in range(3)] for _ in range(3)]
 clicked = False
@@ -10,9 +13,9 @@ pos = []
 player = 1
 gameOver = False
 winner = 0
-
-host='127.0.0.1'
-port=12345
+openMove = True
+lastMove = None
+nextMove = [-1,-1]
 
 pygame.init()
 pygame.display.set_caption("Tic Tac Toe")
@@ -38,6 +41,7 @@ def drawGrid():
     screen.blit(button_text, (SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 110, 165))
 
 def drawMarker():
+    global nextMove,openMove
     x_pos = 0
     for i in matrix:
         y_pos = 0
@@ -60,24 +64,58 @@ def drawMarker():
                 pygame.draw.circle(screen,OCOLOR,(x*240+120,y*240+120),100,15)
             y+=1
         x+=1
+    if openMove == False:
+        x= nextMove[0]
+        y= nextMove[1]
+        pygame.draw.line(screen,OCOLOR,(x*80,y*80),((x+3)*80,y*80),5)
+        pygame.draw.line(screen,OCOLOR,(x*80,(y+3)*80),((x+3)*80,(y+3)*80),5)
+        pygame.draw.line(screen,OCOLOR,(x*80,y*80),(x*80,(y+3)*80),5)
+        pygame.draw.line(screen,OCOLOR,((x+3)*80,y*80),((x+3)*80,(y+3)*80),5)
+    else:
+        for i in range(4):
+            pygame.draw.line(screen,OCOLOR,(i*3*80,0),(i*3*80,720),5)
+            pygame.draw.line(screen,OCOLOR,(0,i*3*80),(720,i*3*80),5)
 
 def receive_message():
     global gameOver
     global matrix
     global winnerMatrix
     global player
+    global lastMove
+    global openMove
+    global nextMove
     while True:
         try:
-            data = socket.recv(1024).decode('utf-8')
-            print(data)
+            data = socket.recv(2048*10).decode('utf-8')
+            print(data)            
+            # if data == "Server winnerMatrix= ":
+            #     winnerMatrixRevc=socket.recv(2048*100).decode('utf-8')
+            #     winnerMatrix=eval(winnerMatrixRevc)
+            #     print("Client Winner Matrix= ",winnerMatrix)
+            # if data== "Server matrix= ":
+            #     matrixRevc=socket.recv(2048).decode('utf-8')
+            #     matrix=eval(matrixRevc)
+            #     print("Client Matrix= ",matrix)
             if data == "Game has been restarted!":
                 matrix = [[0 for _ in range(9)] for _ in range(9)]
                 winnerMatrix = [[0 for _ in range(3)] for _ in range(3)]
                 player = 1
                 gameOver = False
+                lastMove = None
+                openMove = True
+                nextMove = [-1,-1]
+
             if data=="Game over!":
                 print("Game over!")
                 gameOver = True
+
+            if data.count(",")==2:
+                x_y_player=data.split(",")
+                x=int(x_y_player[0])
+                y=int(x_y_player[1])
+                z=int(x_y_player[2])
+                winnerMatrix[x][y] = z
+
         except Exception as e:
             print(f"Exception occurred: {e}")
             break
@@ -90,9 +128,9 @@ def create_thread():
 run = True
 while run:
     
+    create_thread()
     drawGrid()
     drawMarker()
-    create_thread()
 
     #add event handler
     for event in pygame.event.get():
@@ -105,35 +143,23 @@ while run:
             pos = pygame.mouse.get_pos()
             mouse_x = pos[0]
             mouse_y = pos[1]
-            print(pos)
-            #check inside game board
             if pos >= (0,0) and pos <= (720,720):
                 if gameOver == False:
-                    if matrix[mouse_x//80][mouse_y//80] == 0:
-                        matrix[mouse_x//80][mouse_y//80] = player
-                        print(matrix[mouse_x//80][mouse_y//80])
-                        player *= -1
-                        
-                       # data = socket.recv(1024).decode("utf-8")
-                        
-
-                        # if data == "Game has been restarted!":
-                        #     matrix = [[0 for _ in range(9)] for _ in range(9)]
-                        #     winnerMatrix = [[0 for _ in range(3)] for _ in range(3)]
-                        #     player = 1
-                        #     gameOver = False
-
-                        # if data=="Game over!":
-                        #     print("Game over!")
-                        #     gameOver = True
-                        
-                        # check_cell_winner()
-                        # winner = check_winner()
-                        # if winner != 0:
-                        #     gameOver = True
-                        #     print("player ",winner," win")
+                    if openMove == True:
+                        if matrix[mouse_x//80][mouse_y//80] == 0:
+                            matrix[mouse_x//80][mouse_y//80] = player
+                            player *= -1
+                            socket.send(str.encode(str(mouse_x//80)+","+str(mouse_y//80),"utf-8"))
+                            lastMove = pos
+                            check_next_move()
+                    elif openMove == False:
+                        if matrix[mouse_x//80][mouse_y//80] == -2:
+                            matrix[mouse_x//80][mouse_y//80]  = player
+                            player *= -1
+                            reset_move()
+                            lastMove = pos
+                            check_next_move()
             if mouse_x > SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 100 and mouse_x < SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 280 and mouse_y > 150 and mouse_y < 200:
-                # restart_game()
                 print("Send restart message to server")
                 socket.send(str.encode("restart","utf-8"))
     pygame.display.update()

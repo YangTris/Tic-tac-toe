@@ -1,13 +1,20 @@
 from settings import *
 import socket
 
-matrix = [[0 for _ in range(9)] for _ in range(9)]
-winnerMatrix = [[0 for _ in range(3)] for _ in range(3)]
-
 host='127.0.0.1'
 port=12345
 clients=[]
 
+matrix = [[0 for _ in range(9)] for _ in range(9)]
+winnerMatrix = [[0 for _ in range(3)] for _ in range(3)]
+clicked = False
+pos = []
+player = 1
+gameOver = False
+winner = 0
+openMove = True
+lastMove = None
+nextMove = [-1,-1]
 
 def start_server():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -18,7 +25,7 @@ def start_server():
         while True:
             conn, addr = server.accept()
             print(f"Connection from {addr} has been established!")
-            conn.send(bytes("Welcome to the server!", "utf-8"))
+            conn.send(bytes("Welcome to the game!", "utf-8"))
             clients.append(conn)
             handle_client(conn, addr)
     except KeyboardInterrupt:
@@ -26,11 +33,11 @@ def start_server():
         server.close()
 
 def handle_client(conn, addr):
-    global matrix, winnerMatrix, player, gameOver
+    global matrix, winnerMatrix, player, gameOver, lastMove, openMove, nextMove
     player = 1
     gameOver = False
     while True:
-        data = conn.recv(1024).decode("utf-8")
+        data = conn.recv(2048*10).decode("utf-8")
         if not data:
             break
         print(f"Received: {data}")
@@ -39,9 +46,10 @@ def handle_client(conn, addr):
             winnerMatrix = [[0 for _ in range(3)] for _ in range(3)]
             player = 1
             gameOver = False
-            # conn.sendall(bytes("Game has been restarted!", "utf-8"))
-            for client in clients:
-                client.send(bytes("Game has been restarted!", "utf-8"))
+            lastMove = None
+            openMove = True
+            nextMove = [-1,-1]
+            conn.sendall(bytes("Game has been restarted!", "utf-8"))
         else:
             data = data.split(",")
             x = int(data[0])
@@ -49,16 +57,19 @@ def handle_client(conn, addr):
             if matrix[x][y] == 0:
                 matrix[x][y] = player
                 player = -1 if player == 1 else 1
-                result = check_cell_winner()
-                if result != 0:
+                check_cell_winner()
+                winner = check_winner()
+                if winner != 0:
                     gameOver = True
                     conn.send(bytes(f"Game over!", "utf-8"))
-                    conn.send(bytes(f"Player {result} wins!", "utf-8"))
-                else:
-                    conn.send(bytes("Move has been made!", "utf-8"))
+                    conn.send(bytes(f"Player {winner} wins!", "utf-8"))
             else:
                 conn.send(bytes("Invalid move!", "utf-8"))
     conn.close()
+
+def send_msg(message):
+    for client in clients:
+        client.send(message.encode("utf-8"))
 
 def check_columns():
     # print("Checking columns")
@@ -67,15 +78,15 @@ def check_columns():
         if matrix[i][0] == matrix[i][1] == matrix[i][2]:
             result = matrix[i][0]
             if result != 0 and result != 2:
-                draw_winner(result,i,0)
+                add_cell_winner(result,i,0)
         if matrix[i][3] == matrix[i][4] == matrix[i][5]:
             result = matrix[i][3]
             if result != 0 and result != 2:
-                draw_winner(result,i,3)
+                add_cell_winner(result,i,3)
         if matrix[i][6] == matrix[i][7] == matrix[i][8]:
             result = matrix[i][6]
             if result != 0 and result != 2:
-                draw_winner(result,i,6)
+                add_cell_winner(result,i,6)
     return result
 
 def check_rows():
@@ -85,15 +96,15 @@ def check_rows():
         if matrix[0][i] == matrix[1][i] == matrix[2][i]:
             result = matrix[0][i]
             if result != 0 and result != 2:
-                draw_winner(result,0,i)
+                add_cell_winner(result,0,i)
         if matrix[3][i] == matrix[4][i] == matrix[5][i]:
             result = matrix[3][i]
             if result != 0 and result != 2:
-                draw_winner(result,3,i)
+                add_cell_winner(result,3,i)
         if matrix[6][i] == matrix[7][i] == matrix[8][i]:
             result = matrix[6][i]
             if result != 0 and result != 2:
-                draw_winner(result,6,i)
+                add_cell_winner(result,6,i)
     return result
 
 def check_diagonals():
@@ -110,18 +121,19 @@ def check_diagonals():
         if matrix[x][0] == matrix[y][1] == matrix[z][2]:
             result = matrix[x][0]
             if result != 0 and result != 2:
-                draw_winner(result,x,0)
+                add_cell_winner(result,x,0)
         if matrix[x][3] == matrix[y][4] == matrix[z][5]:
             result = matrix[x][3]
             if result != 0 and result != 2:
-                draw_winner(result,x,3)
+                add_cell_winner(result,x,3)
         if matrix[x][6] == matrix[y][7] == matrix[z][8]:
             result = matrix[x][6]
             if result != 0 and result != 2:
-                draw_winner(result,x,6)
+                add_cell_winner(result,x,6)
+
     return result
 
-def draw_winner(player,x_pos,y_pos):
+def add_cell_winner(player,x_pos,y_pos):
     x = (x_pos//3)
     y = (y_pos//3)
     for i in range(3):
@@ -129,7 +141,50 @@ def draw_winner(player,x_pos,y_pos):
             if matrix[x*3+i][y*3+j] == 0:
                 matrix[x*3+i][y*3+j] = 2
     winnerMatrix[x][y] = player
+    #X,Y,Player
+    send_msg(str(x)+","+str(y)+","+str(player))
     print(winnerMatrix)
+
+def check_cell_winner():
+    result = 0
+    result = check_columns()
+    if result == 0:
+        result = check_rows()
+    if result == 0:
+        result = check_diagonals()
+    return result
+
+def check_next_move():
+    global lastMove,nextMove,openMove,player,gameOver,winner
+    check_cell_winner()
+    winner = check_winner()
+    if winner != 0:
+        gameOver = True
+        if winner == -2:
+            print("Tie")
+        else:
+            print("player ",winner," win")
+    else:
+        if lastMove != None:
+            x = lastMove[0]//80
+            y = lastMove[1]//80
+            nextMove[0] = (x-x//3*3)*3
+            nextMove[1] = (y-y//3*3)*3
+            if winnerMatrix[nextMove[0]//3][nextMove[1]//3] == 0:
+                openMove = False
+                count = 0
+                for i in range(3):
+                    for j in range(3):
+                        if matrix[nextMove[0]+i][nextMove[1]+j] == 0:
+                            matrix[nextMove[0]+i][nextMove[1]+j] = -2
+                            count+=1
+                if count == 0:
+                    nextMove = [-1,-1]
+                    openMove = True
+            else:
+                nextMove = [-1,-1]
+                openMove = True
+
 
 def check_cell_winner():
     result = 0
@@ -164,6 +219,13 @@ def check_winner():
             winner = winnerMatrix[2][0]
         
     return winner
+
+def reset_move():
+    if nextMove != [-1,-1]:
+        for i in range(3):
+            for j in range(3):
+                if matrix[nextMove[0]+i][nextMove[1]+j] == -2:
+                    matrix[nextMove[0]+i][nextMove[1]+j] = 0
 
 if __name__ == "__main__":
     start_server()

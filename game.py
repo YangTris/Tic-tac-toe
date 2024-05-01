@@ -156,6 +156,7 @@ def restart_game():
     gameOver = False
     lastMove = None
     openMove = True
+    nextMove = [-1,-1]
 
 def check_winner():
     winner = 0
