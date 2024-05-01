@@ -146,10 +146,8 @@ def check_cell_winner():
         result = check_rows()
     if result == 0:
         result = check_diagonals()
-    if result == 0:
-        result = check_tie()
     return result
-
+    
 def restart_game():
     global matrix, winnerMatrix, player, gameOver,lastMove, openMove
     matrix = [[0 for _ in range(9)] for _ in range(9)]
@@ -166,12 +164,15 @@ def check_winner():
         #check columns
         if sum(i) == 3:
             winner = 1
+            return winner
         if sum(i) == -3:
             winner = -1
+            return winner
         #check rows
         if winnerMatrix[0][pos] == winnerMatrix[1][pos] == winnerMatrix[2][pos]:
             if winnerMatrix[0][pos]!=0:
                 winner = winnerMatrix[0][pos]
+                return winner
         pos+=1
     #check diagonals
     if winnerMatrix[0][0] == winnerMatrix[1][1] == winnerMatrix[2][2]:
@@ -180,13 +181,14 @@ def check_winner():
     if winnerMatrix[2][0] == winnerMatrix[1][1] == winnerMatrix[0][2]:
         if winnerMatrix[2][0] != 0:
             winner = winnerMatrix[2][0]
+            return winner
     #check tie
     count = 0
-    for i in winnerMatrix:
-        for j in i:
-            if j == 0: count+=1
-    if count == 0: 
-        winner = -2
+    for i in range(3):
+        for j in range(3):
+            if winnerMatrix[i][j] == 0:
+                count += 1
+    if count == 0: winner = -2
     return winner
 
 def check_next_move():
@@ -207,10 +209,15 @@ def check_next_move():
             nextMove[1] = (y-y//3*3)*3
             if winnerMatrix[nextMove[0]//3][nextMove[1]//3] == 0:
                 openMove = False
+                count = 0
                 for i in range(3):
                     for j in range(3):
                         if matrix[nextMove[0]+i][nextMove[1]+j] == 0:
                             matrix[nextMove[0]+i][nextMove[1]+j] = -2
+                            count+=1
+                if count == 0:
+                    nextMove = [-1,-1]
+                    openMove = True
             else:
                 nextMove = [-1,-1]
                 openMove = True
