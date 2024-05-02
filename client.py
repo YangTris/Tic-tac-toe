@@ -100,15 +100,19 @@ def receive_message():
         try:
             data = socket.recv(2048*10).decode('utf-8')
             print(data)    
+            # if data == "1" or "-1":
+            #     player = int(data)
+            #     print("Player= ",player)
+
             if data.count(",")==80:
                 matrixRevc = list(map(int, data.split(",")))
-                print(matrixRevc)
                 matrix = convert_1d_to_2d(matrixRevc,9)
-                print("Client Matrix = \n",matrix)
-            if data == "Server winnerMatrix= ":
-                winnerMatrixRevc = socket.recv(2048*100).decode('utf-8')
-                winnerMatrix=eval(winnerMatrixRevc)
-                print("Client Winner Matrix= ",winnerMatrix)
+    
+            # if data == "Server winnerMatrix= ":
+            #     winnerMatrixRevc = socket.recv(2048*100).decode('utf-8')
+            #     winnerMatrix=eval(winnerMatrixRevc)
+            #     print("Client Winner Matrix= ",winnerMatrix)
+
             if data == "Game has been restarted!":
                 matrix = [[0 for _ in range(9)] for _ in range(9)]
                 winnerMatrix = [[0 for _ in range(3)] for _ in range(3)]
