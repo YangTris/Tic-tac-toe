@@ -16,8 +16,11 @@ winner = 0
 openMove = True
 lastMove = None
 nextMove = [-1,-1]
+current_player_count = 0
+current_turn = 1
 
 def start_server():
+    global current_player_count
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind((host, port))
     server.listen(2)
@@ -27,7 +30,10 @@ def start_server():
             conn, addr = server.accept()
             clients.append(conn)
             print(f"Connection from {addr} has been established!")
-            conn.send(bytes("Welcome!", "utf-8"))
+            current_player_count += 1
+
+            conn.send(bytes("Welcome! " + str(current_player_count), "utf-8"))
+
             threading.Thread(target=handle_client, args=(conn, addr)).start()
         #    handle_client(conn, addr)
     except KeyboardInterrupt:
@@ -36,6 +42,8 @@ def start_server():
 
 def handle_client(conn, addr):
     global matrix, winnerMatrix, player, gameOver, lastMove, openMove, nextMove
+    global current_turn
+
     player = 1
     gameOver = False
     while True:
@@ -54,8 +62,16 @@ def handle_client(conn, addr):
             send_msg("Game has been restarted!")
         else:
             data = data.split(",")
-            x = int(data[0])
-            y = int(data[1])
+
+            p = int(data[0])
+            if p != current_turn:
+                print("Illegal move from ", p)
+                continue
+
+            current_turn *= -1
+
+            x = int(data[1])
+            y = int(data[2])
 
             if gameOver == False:
                 if openMove == True:

@@ -16,6 +16,7 @@ winner = 0
 openMove = True
 lastMove = None
 nextMove = [-1,-1]
+current_player = None
 
 pygame.init()
 pygame.display.set_caption("Tic Tac Toe")
@@ -48,6 +49,9 @@ def drawGrid():
     pygame.draw.line(screen, lineColor,(720, 240),(SCREEN_WIDTH,240) , 4)
     chat_box=pygame.font.Font('freesansbold.ttf', 24).render("Chat Box", True, titleColor)
     screen.blit(chat_box, (SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 120, 250))
+
+    WTF=pygame.font.Font('freesansbold.ttf', 24).render("Player: " + str(current_player), True, titleColor)
+    screen.blit(WTF, (SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 120, 275))
     if(player==1):
         centerMessage("X's Turn",XCOLOR)
     else:
@@ -102,10 +106,17 @@ def receive_message():
     global lastMove
     global openMove
     global nextMove
+    global current_player
     while True:
         try:
             data = socket.recv(2048*10).decode('utf-8')
             print(data)
+            
+            if data[:3] == "Wel" and current_player == None:
+                current_player = int(data[-1])
+                current_player = 1 if current_player == 1 else -1
+                print("Set Current_player = ", current_player)
+
             if data=="Open move: False":
                 openMove = False
             if data=="Open move: True":
@@ -141,7 +152,7 @@ def receive_message():
             if data == "Player -1 wins!":
                 centerMessage("Player -1 wins!")
                 
-            if data == "1" or "-1":
+            if data == "1" or data == "-1":
                 player = int(data)
                 print("Player = ",player)
 
@@ -176,15 +187,15 @@ while run:
                 if gameOver == False:
                     if openMove == True:
                         if matrix[mouse_x//80][mouse_y//80] == 0:
-                            matrix[mouse_x//80][mouse_y//80] = player
+                            # matrix[mouse_x//80][mouse_y//80] = player
                             player *= -1
-                            socket.send(str.encode(str(mouse_x)+","+str(mouse_y),"utf-8"))
+                            socket.send(str.encode(str(current_player)+","+str(mouse_x)+","+str(mouse_y),"utf-8"))
                             # check_next_move()
                     elif openMove == False:
                         if matrix[mouse_x//80][mouse_y//80] == -2:
-                            matrix[mouse_x//80][mouse_y//80]  = player
+                            # matrix[mouse_x//80][mouse_y//80]  = player
                             player *= -1
-                            socket.send(str.encode(str(mouse_x)+","+str(mouse_y),"utf-8"))
+                            socket.send(str.encode(str(current_player)+","+str(mouse_x)+","+str(mouse_y),"utf-8"))
                             # reset_move()
                             # check_next_move()
             if mouse_x > SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 100 and mouse_x < SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 280 and mouse_y > 150 and mouse_y < 200:
