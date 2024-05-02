@@ -149,7 +149,7 @@ def check_cell_winner():
     return result
     
 def restart_game():
-    global matrix, winnerMatrix, player, gameOver,lastMove, openMove
+    global matrix, winnerMatrix, player, gameOver,lastMove, openMove,nextMove
     matrix = [[0 for _ in range(9)] for _ in range(9)]
     winnerMatrix = [[0 for _ in range(3)] for _ in range(3)]
     player = 1
