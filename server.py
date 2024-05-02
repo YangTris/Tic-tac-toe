@@ -117,16 +117,16 @@ def check_columns():
     result = 0
     for i in range(9):
         if matrix[i][0] == matrix[i][1] == matrix[i][2]:
-            result = matrix[i][0]
-            if result != 0 and result != 2:
+            if matrix[i][0] != 0 and matrix[i][0] != 2 and matrix[i][0] != -2:
+                result = matrix[i][0]
                 add_cell_winner(result,i,0)
         if matrix[i][3] == matrix[i][4] == matrix[i][5]:
-            result = matrix[i][3]
-            if result != 0 and result != 2:
+            if matrix[i][3] != 0 and matrix[i][3] != 2 and matrix[i][3] != -2:
+                result = matrix[i][3]
                 add_cell_winner(result,i,3)
         if matrix[i][6] == matrix[i][7] == matrix[i][8]:
-            result = matrix[i][6]
-            if result != 0 and result != 2:
+            if matrix[i][6] != 0 and matrix[i][6] != 2 and matrix[i][6] != -2:
+                result = matrix[i][6]
                 add_cell_winner(result,i,6)
     return result
 
@@ -135,16 +135,16 @@ def check_rows():
     result = 0
     for i in range(9):
         if matrix[0][i] == matrix[1][i] == matrix[2][i]:
-            result = matrix[0][i]
-            if result != 0 and result != 2:
+            if matrix[0][i] != 0 and matrix[0][i] != 2 and matrix[0][i] != -2:
+                result = matrix[0][i]
                 add_cell_winner(result,0,i)
         if matrix[3][i] == matrix[4][i] == matrix[5][i]:
-            result = matrix[3][i]
-            if result != 0 and result != 2:
+            if matrix[3][i] != 0 and matrix[3][i] != 2 and matrix[3][i] != -2:
+                result = matrix[3][i]
                 add_cell_winner(result,3,i)
         if matrix[6][i] == matrix[7][i] == matrix[8][i]:
-            result = matrix[6][i]
-            if result != 0 and result != 2:
+            if matrix[6][i] != 0 and matrix[6][i] != 2 and matrix[6][i] != -2:
+                result = matrix[6][i]
                 add_cell_winner(result,6,i)
     return result
 
@@ -160,18 +160,17 @@ def check_diagonals():
             z=x-2
 
         if matrix[x][0] == matrix[y][1] == matrix[z][2]:
-            result = matrix[x][0]
-            if result != 0 and result != 2:
+            if matrix[x][0] != 0 and matrix[x][0] != 2 and matrix[x][0] != -2:
+                result = matrix[x][0]
                 add_cell_winner(result,x,0)
         if matrix[x][3] == matrix[y][4] == matrix[z][5]:
-            result = matrix[x][3]
-            if result != 0 and result != 2:
+            if matrix[x][3] != 0 and matrix[x][3] != 2 and matrix[x][3] != -2:
+                result = matrix[x][3]
                 add_cell_winner(result,x,3)
         if matrix[x][6] == matrix[y][7] == matrix[z][8]:
-            result = matrix[x][6]
-            if result != 0 and result != 2:
+            if matrix[x][6] != 0 and matrix[x][6] != 2 and matrix[x][6] != -2:
+                result = matrix[x][6]
                 add_cell_winner(result,x,6)
-
     return result
 
 def add_cell_winner(player,x_pos,y_pos):
@@ -186,7 +185,9 @@ def add_cell_winner(player,x_pos,y_pos):
 
 def check_next_move(conn):
     global lastMove,nextMove,openMove,player,gameOver,winner
-    check_cell_winner()
+    check_columns()
+    check_rows()
+    check_diagonals()
     winner = check_winner()
     if winner == -2:
         gameOver = True
@@ -220,16 +221,7 @@ def check_next_move(conn):
         send_msg("Open move: "+str(openMove))
         send_msg(str(nextMove[0])+","+str(nextMove[1]))
         send_matrix()
-
-def check_cell_winner():
-    result = 0
-    result = check_columns()
-    if result == 0:
-        result = check_rows()
-    if result == 0:
-        result = check_diagonals()
-    return result
-
+        
 def check_winner():
     winner = 0
     pos = 0

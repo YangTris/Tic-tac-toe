@@ -190,6 +190,8 @@ while run:
             if mouse_x > SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 100 and mouse_x < SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 280 and mouse_y > 150 and mouse_y < 200:
                 print("Send restart message to server")
                 socket.send(str.encode("restart","utf-8"))
+    
+    drawMarker()
     pygame.display.update()
 
 pygame.quit()
