@@ -1,5 +1,6 @@
 from settings import *
 import socket
+import threading
 
 host='127.0.0.1'
 port=12345
@@ -24,10 +25,11 @@ def start_server():
     try:
         while True:
             conn, addr = server.accept()
+            clients.append(conn)
             print(f"Connection from {addr} has been established!")
             conn.send(bytes("Welcome to the game!", "utf-8"))
-            clients.append(conn)
-            handle_client(conn, addr)
+            threading.Thread(target=handle_client, args=(conn, addr)).start()
+        #    handle_client(conn, addr)
     except KeyboardInterrupt:
         print("Server shutting down...")
         server.close()
@@ -49,7 +51,7 @@ def handle_client(conn, addr):
             lastMove = None
             openMove = True
             nextMove = [-1,-1]
-            conn.sendall(bytes("Game has been restarted!", "utf-8"))
+            send_msg("Game has been restarted!")
         else:
             data = data.split(",")
             x = int(data[0])
