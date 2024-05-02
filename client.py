@@ -2,7 +2,6 @@ import pygame
 from settings import *
 import socket
 import threading
-import numpy as np
 
 host='127.0.0.1'
 port=12345
