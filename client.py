@@ -39,7 +39,11 @@ def drawGrid():
     pygame.draw.rect(screen, (0, 255, 0), (SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 100, 150, 180, 50))  # Green button
     button_text = pygame.font.Font('freesansbold.ttf', 24).render("Restart Game", True, (0, 0, 0))
     screen.blit(button_text, (SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 110, 165))
-
+    if(player==1):
+        centerMessage("X's Turn",XCOLOR)
+    else:
+        centerMessage("O's Turn",OCOLOR)
+        
 def drawMarker():
     global nextMove,openMove
     x_pos = 0
@@ -75,6 +79,11 @@ def drawMarker():
         for i in range(4):
             pygame.draw.line(screen,OCOLOR,(i*3*80,0),(i*3*80,720),5)
             pygame.draw.line(screen,OCOLOR,(0,i*3*80),(720,i*3*80),5)
+
+def centerMessage(msg, color = titleColor):
+    pos = (SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 110, 110)
+    msgRendered = pygame.font.Font('freesansbold.ttf', 36).render(msg, True, color)
+    screen.blit(msgRendered, pos)
 
 def receive_message():
     global gameOver
@@ -151,14 +160,14 @@ while run:
                             player *= -1
                             socket.send(str.encode(str(mouse_x//80)+","+str(mouse_y//80),"utf-8"))
                             lastMove = pos
-                            check_next_move()
+                            # check_next_move()
                     elif openMove == False:
                         if matrix[mouse_x//80][mouse_y//80] == -2:
                             matrix[mouse_x//80][mouse_y//80]  = player
                             player *= -1
-                            reset_move()
+                            # reset_move()
                             lastMove = pos
-                            check_next_move()
+                            # check_next_move()
             if mouse_x > SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 100 and mouse_x < SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 280 and mouse_y > 150 and mouse_y < 200:
                 print("Send restart message to server")
                 socket.send(str.encode("restart","utf-8"))

@@ -57,8 +57,13 @@ def handle_client(conn, addr):
             if matrix[x][y] == 0:
                 matrix[x][y] = player
                 player = -1 if player == 1 else 1
+                send_msg(str(matrix))
                 check_cell_winner()
                 winner = check_winner()
+                if winner == -2:
+                    gameOver = True
+                    conn.send(bytes("Game over!", "utf-8"))
+                    conn.send(bytes("It's a tie!", "utf-8"))
                 if winner != 0:
                     gameOver = True
                     conn.send(bytes(f"Game over!", "utf-8"))
@@ -143,16 +148,8 @@ def add_cell_winner(player,x_pos,y_pos):
     winnerMatrix[x][y] = player
     #X,Y,Player
     send_msg(str(x)+","+str(y)+","+str(player))
+    send_msg("Server winnerMatrix: "+str(winnerMatrix))
     print(winnerMatrix)
-
-def check_cell_winner():
-    result = 0
-    result = check_columns()
-    if result == 0:
-        result = check_rows()
-    if result == 0:
-        result = check_diagonals()
-    return result
 
 def check_next_move():
     global lastMove,nextMove,openMove,player,gameOver,winner
@@ -184,7 +181,6 @@ def check_next_move():
             else:
                 nextMove = [-1,-1]
                 openMove = True
-
 
 def check_cell_winner():
     result = 0
