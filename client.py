@@ -2,6 +2,7 @@ import pygame
 from settings import *
 import socket
 import threading
+import numpy as np
 
 host='127.0.0.1'
 port=12345
@@ -96,15 +97,21 @@ def receive_message():
     while True:
         try:
             data = socket.recv(2048*10).decode('utf-8')
-            print(data)            
-            # if data == "Server winnerMatrix= ":
-            #     winnerMatrixRevc=socket.recv(2048*100).decode('utf-8')
-            #     winnerMatrix=eval(winnerMatrixRevc)
-            #     print("Client Winner Matrix= ",winnerMatrix)
-            # if data== "Server matrix= ":
-            #     matrixRevc=socket.recv(2048).decode('utf-8')
-            #     matrix=eval(matrixRevc)
-            #     print("Client Matrix= ",matrix)
+            print(data)
+            # print("Client winnerMatrix= "+winnerMatrix)            
+            if data.count(",")==80:
+                matrixRevc = np.array(data.split(","))
+                print(matrixRevc.reshape(9,9))
+                matrix=matrixRevc.reshape(9,9)
+                print("Client Matrix= ",matrix)
+            if data == "Server matrix= ":
+                matrixRevc = socket.recv(2048).decode('utf-8')
+                matrix=eval(matrixRevc)
+                print("Client Matrix= ",matrix)
+            if data == "Server winnerMatrix= ":
+                winnerMatrixRevc = socket.recv(2048*100).decode('utf-8')
+                winnerMatrix=eval(winnerMatrixRevc)
+                print("Client Winner Matrix= ",winnerMatrix)
             if data == "Game has been restarted!":
                 matrix = [[0 for _ in range(9)] for _ in range(9)]
                 winnerMatrix = [[0 for _ in range(3)] for _ in range(3)]

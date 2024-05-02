@@ -57,9 +57,11 @@ def handle_client(conn, addr):
             if matrix[x][y] == 0:
                 matrix[x][y] = player
                 player = -1 if player == 1 else 1
-                send_msg(str(matrix))
                 check_cell_winner()
                 winner = check_winner()
+                send_msg("Server matrix= ")
+                send_msg(str(matrix))
+                send_matrix(matrix)
                 if winner == -2:
                     gameOver = True
                     conn.send(bytes("Game over!", "utf-8"))
@@ -76,6 +78,16 @@ def send_msg(message):
     for client in clients:
         client.send(message.encode("utf-8"))
 
+def send_matrix(matrix):
+    string = ""
+    for i in range(9):
+        for j in range(9):
+            if i== j == 8:
+                string += str(matrix[i][j])
+            else:
+                string += str(matrix[i][j]) + ","
+    send_msg(string)
+    
 def check_columns():
     # print("Checking columns")
     result = 0
