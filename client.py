@@ -40,8 +40,14 @@ def drawGrid():
     pygame.draw.line(screen, lineColor, (720, 0), (720, 720), 4)
     
     pygame.draw.rect(screen, (0, 255, 0), (SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 100, 150, 180, 50))  # Green button
-    button_text = pygame.font.Font('freesansbold.ttf', 24).render("Restart Game", True, (0, 0, 0))
-    screen.blit(button_text, (SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 110, 165))
+    restart_button = pygame.font.Font('freesansbold.ttf', 24).render("Restart Game", True, (0, 0, 0))
+    screen.blit(restart_button, (SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 110, 165))
+    title = pygame.font.Font('freesansbold.ttf', 52).render("TIC TAC TOE", True, titleColor)
+    screen.blit(title, (SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 20, 10))
+    #chat box
+    pygame.draw.line(screen, lineColor,(720, 240),(SCREEN_WIDTH,240) , 4)
+    chat_box=pygame.font.Font('freesansbold.ttf', 24).render("Chat Box", True, titleColor)
+    screen.blit(chat_box, (SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 120, 250))
     if(player==1):
         centerMessage("X's Turn",XCOLOR)
     else:
@@ -99,23 +105,24 @@ def receive_message():
     while True:
         try:
             data = socket.recv(2048*10).decode('utf-8')
+            print(data)
             if data=="Open move: False":
                 openMove = False
-                print("Open move: False")
             if data=="Open move: True":
                 openMove = True
-                print("Open move: True")
+            
             if data.count(",")==1:
                 matrixRevc = list(map(int, data.split(",")))
                 nextMove = matrixRevc
+
             if data.count(",")==80:
                 matrixRevc = list(map(int, data.split(",")))
                 matrix = convert_1d_to_2d(matrixRevc,9)
-                print("Client Matrix = \n",matrix)
+
             if data.count(",")==8:
                 matrixRevc = list(map(int, data.split(",")))
                 winnerMatrix = convert_1d_to_2d(matrixRevc,3)
-                print("Client Winner Matrix = \n",winnerMatrix)
+
             if data == "Game has been restarted!":
                 matrix = [[0 for _ in range(9)] for _ in range(9)]
                 winnerMatrix = [[0 for _ in range(3)] for _ in range(3)]
@@ -124,9 +131,20 @@ def receive_message():
                 lastMove = None
                 openMove = True
                 nextMove = [-1,-1]
-            if data=="Game over!":
-                print("Game over!")
-                gameOver = True
+
+            if data == "It's a tie!":
+                centerMessage("It's a tie!")
+
+            if data == "Player 1 wins!":
+                centerMessage("Player 1 wins!")
+            
+            if data == "Player -1 wins!":
+                centerMessage("Player -1 wins!")
+                
+            if data == "1" or "-1":
+                player = int(data)
+                print("Player = ",player)
+
         except Exception as e:
             print(f"Exception occurred: {e}")
             break

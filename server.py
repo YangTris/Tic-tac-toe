@@ -27,7 +27,7 @@ def start_server():
             conn, addr = server.accept()
             clients.append(conn)
             print(f"Connection from {addr} has been established!")
-            conn.send(bytes("Welcome to the game!", "utf-8"))
+            conn.send(bytes("Welcome!", "utf-8"))
             threading.Thread(target=handle_client, args=(conn, addr)).start()
         #    handle_client(conn, addr)
     except KeyboardInterrupt:
@@ -56,6 +56,7 @@ def handle_client(conn, addr):
             data = data.split(",")
             x = int(data[0])
             y = int(data[1])
+
             if gameOver == False:
                 if openMove == True:
                     if matrix[x//80][y//80] == 0:
@@ -63,6 +64,7 @@ def handle_client(conn, addr):
                         player *= -1
                         lastMove = [x,y]
                         check_next_move(conn)
+
                 elif openMove == False:
                     if matrix[x//80][y//80] == -2:
                         matrix[x//80][y//80]  = player
@@ -70,8 +72,18 @@ def handle_client(conn, addr):
                         lastMove = [x,y]
                         reset_move()
                         check_next_move(conn)
-            else:
-                conn.send(bytes("Invalid move!", "utf-8"))
+
+            send_msg(str(player))
+            
+            if winner == -2:
+                send_msg("It's a tie!")
+
+            if winner == 1:
+                send_msg("Player 1 wins!")
+            
+            if winner == -1:
+                send_msg("Player -1 wins!")
+
     conn.close()
 
 def send_msg(message):
@@ -208,8 +220,6 @@ def check_next_move(conn):
         send_msg("Open move: "+str(openMove))
         send_msg(str(nextMove[0])+","+str(nextMove[1]))
         send_matrix()
-        
-        
 
 def check_cell_winner():
     result = 0
