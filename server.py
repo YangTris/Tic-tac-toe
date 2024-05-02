@@ -60,7 +60,6 @@ def handle_client(conn, addr):
                 check_cell_winner()
                 winner = check_winner()
                 send_msg("Server matrix= ")
-                send_msg(str(matrix))
                 send_matrix(matrix)
                 if winner == -2:
                     gameOver = True

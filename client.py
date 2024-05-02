@@ -26,6 +26,9 @@ socket.connect((host,port))
 
 screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
 
+def convert_1d_to_2d(l, cols):
+    return [l[i:i + cols] for i in range(0, len(l), cols)]
+
 def drawGrid():
     screen.fill(backgroundColor)
     for i in range(9):
@@ -97,17 +100,12 @@ def receive_message():
     while True:
         try:
             data = socket.recv(2048*10).decode('utf-8')
-            print(data)
-            # print("Client winnerMatrix= "+winnerMatrix)            
+            print(data)    
             if data.count(",")==80:
-                matrixRevc = np.array(data.split(","))
-                print(matrixRevc.reshape(9,9))
-                matrix=matrixRevc.reshape(9,9)
-                print("Client Matrix= ",matrix)
-            if data == "Server matrix= ":
-                matrixRevc = socket.recv(2048).decode('utf-8')
-                matrix=eval(matrixRevc)
-                print("Client Matrix= ",matrix)
+                matrixRevc = list(map(int, data.split(",")))
+                print(matrixRevc)
+                matrix = convert_1d_to_2d(matrixRevc,9)
+                print("Client Matrix = \n",matrix)
             if data == "Server winnerMatrix= ":
                 winnerMatrixRevc = socket.recv(2048*100).decode('utf-8')
                 winnerMatrix=eval(winnerMatrixRevc)
