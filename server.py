@@ -18,6 +18,7 @@ lastMove = None
 nextMove = [-1,-1]
 current_player_count = 0
 current_turn = 1
+conversation_messages = []
 
 def start_server():
     global current_player_count
@@ -43,6 +44,8 @@ def start_server():
 def handle_client(conn, addr):
     global matrix, winnerMatrix, player, gameOver, lastMove, openMove, nextMove
     global current_turn
+    global winner
+    global conversation_messages
 
     player = 1
     gameOver = False
@@ -51,6 +54,7 @@ def handle_client(conn, addr):
         if not data:
             break
         print(f"Received: {data}")
+
         if data == "restart":
             matrix = [[0 for _ in range(9)] for _ in range(9)]
             winnerMatrix = [[0 for _ in range(3)] for _ in range(3)]
@@ -60,7 +64,8 @@ def handle_client(conn, addr):
             openMove = True
             nextMove = [-1,-1]
             send_msg("Game has been restarted!")
-        else:
+        
+        elif data.count(",") == 2:
             data = data.split(",")
 
             p = int(data[0])
@@ -99,6 +104,11 @@ def handle_client(conn, addr):
             
             if winner == -1:
                 send_msg("Player -1 wins!")
+
+        else:
+            conversation_messages.append(data)
+            conversation_messages = conversation_messages[-10:]
+            send_msg(data)
 
     conn.close()
 
