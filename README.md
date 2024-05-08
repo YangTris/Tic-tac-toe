@@ -67,5 +67,5 @@ python server.py
 ![Chat box](images/chatbox.png)
 
 ### Tie game
-![Tie game](images/tiegame.png)
+![Tie game](images/tiegame.jpg)
 
