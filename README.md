@@ -16,11 +16,35 @@
 
 ## Installing Packages
 - Install the following package dependencies using pip:
-```ps
+```
 pip install pygame
 ```
 
----
+## The rule
+Giống như Cờ Caro thông thường, Ultimate Tic-Tac-Toe là trò chơi dành cho 2 người chơi
+(X và O), chơi theo lượt, bắt đầu với người chơi X.
+Trò chơi bắt đầu như thế nào?
+• Người chơi X được đánh dấu X của mình vào bất kỳ ô trống nào trong tổng số 81 ô trống
+trên bàn cờ lớn.
+• Lượt tiếp theo, đối thủ (O) bị buộc phải đánh dấu vào ô trống trong bàn cờ nhỏ tương ứng
+với vị trí mà X vừa đánh dấu trên bàn cờ lớn. Ví dụ: nếu X đánh dấu vào ô trống phía
+trên bên phải của một bàn cờ nhỏ (3x3), thì O phải đánh dấu vào bàn cờ nhỏ nằm ở phía
+trên bên phải của bàn cờ lớn.
+• Người chơi đánh dấu vào bất kỳ ô trống nào trong bàn cờ nhỏ được chọn sẽ xác định bàn
+cờ nhỏ nào mà người chơi kia phải đánh dấu vào lượt tiếp theo.
+Chiến thắng một ô nhỏ:
+• Nếu một nước đi tạo thành một hàng ngang, dọc hoặc chéo gồm 3 ký hiệu giống nhau theo
+luật chơi của Cờ Caro thông thường trong một bàn cờ nhỏ, thì toàn bộ bàn cờ nhỏ đó được
+đánh dấu là đã thắng bởi người chơi đó trên bàn cờ lớn.
+• Một khi một bàn cờ nhỏ đã được một người chơi thắng hoặc được đánh dấu đầy đủ, thì
+không thể đánh thêm bất kỳ nước đi nào vào bàn cờ đó nữa.
+Nếu bị "gửi" đến một bàn cờ đã thắng hoặc đầy:
+Nếu một người chơi bị "gửi" đến một bàn cờ nhỏ đã được thắng hoặc đầy đủ, thì người chơi đó
+có thể đánh dấu vào bất kỳ bàn cờ nhỏ nào khác trên bàn cờ lớn.
+Kết thúc trò chơi:
+Trò chơi kết thúc khi một trong hai người chơi thắng trên bàn cờ lớn (bằng cách tạo thành một
+hàng ngang, dọc hoặc chéo gồm 3 bàn cờ nhỏ đã thắng của mình) hoặc không còn nước đi hợp
+lệ nào còn lại. Trong trường hợp không còn nước đi hợp lệ, trò chơi được tuyên bố là hòa.
 
 ## How to Play?
 - Clone the Repository
