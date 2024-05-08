@@ -226,9 +226,9 @@ def check_next_move(conn):
         gameOver = True
     if winner != 0:
         # send_msg("Game over!")
-        send_msg("Player "+str(winner)+" wins the game!")
         # conn.send(bytes(f"Game over!", "utf-8"))
-        # if winner == -1: winner = 2
+        if winner == -1: winner = 2
+        send_msg("Player "+str(winner)+" wins the game!")
         # conn.send(bytes(f"Player {winner} wins!", "utf-8"))
         # conn.send("Winner "+str(winner))
         gameOver = True

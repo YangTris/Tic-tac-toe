@@ -57,6 +57,12 @@ python server.py
 ### Game play
 ![Game play](images/gameplay.png)
 
+### X's win
+![X's win](images/player1.png)
+
+### O's win
+![O's win](images/player2.png)
+
 ### Chat box
 ![Chat box](images/chatbox.png)
 

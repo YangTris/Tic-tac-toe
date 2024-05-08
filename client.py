@@ -166,8 +166,8 @@ def receive_message():
                 openMove = True
                 nextMove = [-1,-1]
 
-            elif data == "It's a tie!":
-                centerMessage("It's a tie!")
+            # elif data == "It's a tie!":
+            #     centerMessage("It's a tie!")
 
             elif data == "Player 1 wins!":
                 centerMessage("Player 1 wins!")
