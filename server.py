@@ -59,6 +59,7 @@ def handle_client(conn, addr):
             matrix = [[0 for _ in range(9)] for _ in range(9)]
             winnerMatrix = [[0 for _ in range(3)] for _ in range(3)]
             player = 1
+            current_turn = 1
             gameOver = False
             lastMove = None
             openMove = True
@@ -216,14 +217,21 @@ def check_next_move(conn):
     check_diagonals()
     winner = check_winner()
     if winner == -2:
+        send_msg("Game over!")
+        send_msg("It's a tie!")
+        send_msg("Winner -2")
+        # conn.send(bytes("Game over!", "utf-8"))
+        # conn.send(bytes("It's a tie!", "utf-8"))
+        # conn.send("Winner -2")
         gameOver = True
-        conn.send(bytes("Game over!", "utf-8"))
-        conn.send(bytes("It's a tie!", "utf-8"))
     if winner != 0:
+        send_msg("Game over!")
+        send_msg("Winner"+str(winner))
+        # conn.send(bytes(f"Game over!", "utf-8"))
+        # if winner == -1: winner = 2
+        # conn.send(bytes(f"Player {winner} wins!", "utf-8"))
+        # conn.send("Winner "+str(winner))
         gameOver = True
-        conn.send(bytes(f"Game over!", "utf-8"))
-        if winner == -1: winner = 2
-        conn.send(bytes(f"Player {winner} wins!", "utf-8"))
     else:
         if lastMove != None:
             x = lastMove[0]//80

@@ -17,6 +17,7 @@ openMove = True
 lastMove = None
 nextMove = [-1,-1]
 current_player = None
+client_player= None
 msg=""
 conversation_messages = []
 
@@ -52,7 +53,7 @@ def drawGrid():
     chat_box=pygame.font.Font('freesansbold.ttf', 24).render("Chat Box", True, titleColor)
     screen.blit(chat_box, (SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 120, 250))
 
-    WTF=pygame.font.Font('freesansbold.ttf', 24).render("Player: " + str(current_player), True, titleColor)
+    WTF=pygame.font.Font('freesansbold.ttf', 24).render("Player: " + str(client_player), True, titleColor)
     screen.blit(WTF, (SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 120, 275))
 
     input_box=pygame.Rect(750, SCREEN_HEIGHT-50, 300, 40)
@@ -68,8 +69,14 @@ def drawGrid():
 
     if(player==1):
         centerMessage("X's Turn",XCOLOR)
-    else:
+    if(player==-1):
         centerMessage("O's Turn",OCOLOR)
+    if(winner == 1):
+        centerMessage("Player 1 wins!",XCOLOR)
+    elif(winner == -1):
+        centerMessage("Player 2 wins!",OCOLOR)
+    elif(winner == -2):
+        centerMessage("It's a tie!")
         
 def drawMarker():
     global nextMove,openMove
@@ -122,13 +129,16 @@ def receive_message():
     global nextMove
     global current_player
     global conversation_messages
+    global client_player
     while True:
         try:
             data = socket.recv(2048*10).decode('utf-8')
             if data[:3] == "Wel" and current_player == None:
                 current_player = int(data[-1])
                 current_player = 1 if current_player == 1 else -1
-                print("Set Current_player = ", current_player)
+                client_player = int(data[-1])
+                client_player = 1 if client_player == 1 else 2
+                print("You are player ", client_player)
 
             elif data=="Open move: False":
                 openMove = False
@@ -163,11 +173,23 @@ def receive_message():
                 centerMessage("Player 1 wins!")
             
             elif data == "Player -1 wins!":
-                centerMessage("Player -1 wins!")
+                centerMessage("Player 2 wins!")
                 
             elif data == "1" or data == "-1":
                 player = int(data)
                 print("Player = ",player)
+            
+            elif data == "Winner -2":
+                winner = -2
+                print("It's a tie!")
+            
+            elif data == "Winner 1":
+                winner = 1
+                print("Player 1 wins!")
+            
+            elif data == "Winner -1":
+                winner = -1
+                print("Player 2 wins!")
 
             else:
                 conversation_messages.append(data)
@@ -186,47 +208,50 @@ def create_thread():
 run = True
 while run:
 
-    create_thread()
     drawGrid()
     drawMarker()
+    create_thread()
 
     #add event handler
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
-        if event.type == pygame.MOUSEBUTTONDOWN and clicked == False:
-            clicked = True
-
+    
         if event.type== pygame.KEYDOWN:
             if event.key == pygame.K_RETURN:
                 print(msg)
-                socket.send(str.encode("Player " + str(current_player) + ": " + msg,"utf-8"))
+                socket.send(str.encode("Player " + str(client_player) + ": " + msg,"utf-8"))
                 msg = ""
             elif event.key == pygame.K_BACKSPACE:
                 msg = msg[:-1]
             else:
                 msg += event.unicode
-        
+    
+        if event.type == pygame.MOUSEBUTTONDOWN and clicked == False:
+            clicked = True
+    
         if event.type == pygame.MOUSEBUTTONUP and clicked == True:
             clicked = False
             pos = pygame.mouse.get_pos()
             mouse_x = pos[0]
             mouse_y = pos[1]
             if pos >= (0,0) and pos <= (720,720):
-                if gameOver == False:
-                    if openMove == True:
-                        if matrix[mouse_x//80][mouse_y//80] == 0:
-                            # matrix[mouse_x//80][mouse_y//80] = player
-                            # player *= -1
+                # if gameOver == False:
+                #     if openMove == True:
+                #         if matrix[mouse_x//80][mouse_y//80] == 0:
+                #             # matrix[mouse_x//80][mouse_y//80] = player
+                #             # player *= -1
+                #             socket.send(str.encode(str(current_player)+","+str(mouse_x)+","+str(mouse_y),"utf-8"))
+                #             # check_next_move()
+                #     elif openMove == False:
+                #         if matrix[mouse_x//80][mouse_y//80] == -2:
+                #             # matrix[mouse_x//80][mouse_y//80]  = player
+                #             # player *= -1
+                #             socket.send(str.encode(str(current_player)+","+str(mouse_x)+","+str(mouse_y),"utf-8"))
+                #             # reset_move()
+                #             # check_next_move()
                             socket.send(str.encode(str(current_player)+","+str(mouse_x)+","+str(mouse_y),"utf-8"))
-                            # check_next_move()
-                    elif openMove == False:
-                        if matrix[mouse_x//80][mouse_y//80] == -2:
-                            # matrix[mouse_x//80][mouse_y//80]  = player
-                            # player *= -1
-                            socket.send(str.encode(str(current_player)+","+str(mouse_x)+","+str(mouse_y),"utf-8"))
-                            # reset_move()
-                            # check_next_move()
+
             if mouse_x > SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 100 and mouse_x < SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 280 and mouse_y > 150 and mouse_y < 200:
                 print("Send restart message to server")
                 socket.send(str.encode("restart","utf-8"))
