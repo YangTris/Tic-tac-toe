@@ -49,7 +49,7 @@ def handle_client(conn, addr):
 
     player = 1
     gameOver = False
-    while True:
+    while True:     
         data = conn.recv(2048*10).decode("utf-8")
         if not data:
             break
