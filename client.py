@@ -23,6 +23,8 @@ conversation_messages = []
 
 pygame.init()
 pygame.display.set_caption("Tic Tac Toe")
+icon = pygame.image.load("tictactoe.png")
+pygame.display.set_icon(icon)
 
 socket=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 socket.connect((host,port))
