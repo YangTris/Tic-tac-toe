@@ -217,7 +217,7 @@ def check_next_move(conn):
     check_diagonals()
     winner = check_winner()
     if winner == -2:
-        send_msg("Game over!")
+        # send_msg("Game over!")
         send_msg("It's a tie!")
         send_msg("Winner -2")
         # conn.send(bytes("Game over!", "utf-8"))
@@ -225,8 +225,8 @@ def check_next_move(conn):
         # conn.send("Winner -2")
         gameOver = True
     if winner != 0:
-        send_msg("Game over!")
-        send_msg("Winner"+str(winner))
+        # send_msg("Game over!")
+        send_msg("Player "+str(winner)+" wins the game!")
         # conn.send(bytes(f"Game over!", "utf-8"))
         # if winner == -1: winner = 2
         # conn.send(bytes(f"Player {winner} wins!", "utf-8"))

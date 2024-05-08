@@ -67,17 +67,17 @@ def drawGrid():
         screen.blit(conversation_text, (SCREEN_WIDTH - (SCREEN_WIDTH-SCREEN_HEIGHT) + 20, 320 + y_offset))
         y_offset += 30
 
+    # if(winner == 1):
+    #     centerMessage("Player 1 wins!",XCOLOR)
+    # elif(winner == -1):
+    #     centerMessage("Player 2 wins!",OCOLOR)
+    # elif(winner == -2):
+    #     centerMessage("It's a tie!")
     if(player==1):
         centerMessage("X's Turn",XCOLOR)
-    if(player==-1):
+    else:
         centerMessage("O's Turn",OCOLOR)
-    if(winner == 1):
-        centerMessage("Player 1 wins!",XCOLOR)
-    elif(winner == -1):
-        centerMessage("Player 2 wins!",OCOLOR)
-    elif(winner == -2):
-        centerMessage("It's a tie!")
-        
+    
 def drawMarker():
     global nextMove,openMove
     x_pos = 0
@@ -179,17 +179,17 @@ def receive_message():
                 player = int(data)
                 print("Player = ",player)
             
-            elif data == "Winner -2":
-                winner = -2
-                print("It's a tie!")
+            # elif data == "Winner -2":
+            #     winner = -2
+            #     print("It's a tie!")
             
-            elif data == "Winner 1":
-                winner = 1
-                print("Player 1 wins!")
+            # elif data == "Winner 1":
+            #     winner = 1
+            #     print("Player 1 wins!")
             
-            elif data == "Winner -1":
-                winner = -1
-                print("Player 2 wins!")
+            # elif data == "Winner -1":
+            #     winner = -1
+            #     print("Player 2 wins!")
 
             else:
                 conversation_messages.append(data)
