@@ -62,7 +62,7 @@ python server.py
 
 ## Report PDF
 
-![Report pdf](ReportOSSD.pdf)
+[Report pdf](ReportOSSD.pdf)
 
 ## The rule
 
